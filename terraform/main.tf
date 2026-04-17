@@ -12,7 +12,45 @@ provider "google" {
   region  = var.region
 }
 
-resource "google_storage_bucket" "f1-data-lake" {
+resource "google_service_account" "extractor_sa" {
+  account_id   = "f1-extractor-sa"
+  display_name = "F1 Data Extractor Service Account"
+}
+
+resource "google_storage_bucket_iam_member" "bucket_writer" {
+  bucket = google_storage_bucket.f1_data_lake.name
+  role = "roles/storage.objectCreator"
+  member = "serviceAccount:${google_service_account.extractor_sa.email}"
+}
+
+resource "google_artifact_registry_repository_iam_member" "repo_reader" {
+  project = var.project_id
+  location = var.region
+  repository = google_artifact_registry_repository.f1_docker_repo.name
+  role = "roles/artifactregistry.reader"
+  member = "serviceAccount:${google_service_account.extractor_sa.email}"
+}
+
+resource "google_cloud_run_v2_job" "cloud_run" {
+  name = "${var.project_base_name}_cloud_run_job"
+  location = var.region
+
+  template {
+    template {
+      service_account = google_service_account.extractor_sa.email
+      containers {
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.f1_docker_repo.repository_id}/f1-extractor"
+        env {
+          name = "BUCKET_NAME"
+          value = google_storage_bucket.f1_data_lake.name
+        }
+      }
+    }
+  }
+}
+
+
+resource "google_storage_bucket" "f1_data_lake" {
   name     = "${var.project_id}-${var.project_base_name}-data-lake"
   location = var.region
 

@@ -3,11 +3,9 @@ import fastf1
 import os
 import sys
 import logging
+from google.cloud import storage
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)   
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 TIME_COLUMNS = [
     'Time', 
@@ -22,6 +20,26 @@ TIME_COLUMNS = [
     'Sector3SessionTime', 
     'LapStartTime'
     ]
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)   
+
+
+def upload_to_gcs(year: int, round: int, session_type: str, local_file_name: str, local_file_path: str):
+        storage_client = storage.Client()
+        
+        bucket = storage_client.bucket(BUCKET_NAME)
+        
+        destination_blob_name = f"year={year}/round={round}/session_type={session_type}/{local_file_name}"
+        blob = bucket.blob(destination_blob_name)
+        
+        logging.info(f"Uploading {local_file_path} to gs://{BUCKET_NAME}/{destination_blob_name}...")
+        blob.upload_from_filename(local_file_path)
+        logging.info("Upload completed successfully.")
+    
 
 def main():
     parser = argparse.ArgumentParser(prog="pysync")
@@ -77,6 +95,17 @@ def main():
         logging.error(f"Failed to write Parquet file: {e}")
         sys.exit(1)
     
+    
+    if BUCKET_NAME:
+        try:
+            logging.info("Connecting to GCS...")
+            upload_to_gcs(args.year, args.round, args.session_type, file_name, export_path)
+        except Exception as e:
+            logging.error(f"Upload to GCS failed: {e}")
+            sys.exit(1)
+    else:
+        logging.warning(f"BUCKET_NAME is None, no file was uploaded to GCS. The file was saved locally in {export_path}")
+        sys.exit(0)
     
 if __name__ == "__main__":
     main()
