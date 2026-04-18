@@ -62,3 +62,30 @@ resource "google_project_iam_member" "build_storage_admin" {
   role    = "roles/storage.objectAdmin"
   member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
+
+
+resource "google_iam_workload_identity_pool" "wip" {
+  workload_identity_pool_id = "${var.project_base_name}-wip"
+  display_name              = "GITHUB-ACTIONS-WIP"
+  description               = "Workload Identity Pool for GitHub Actions integration"
+}
+
+resource "google_iam_workload_identity_pool_provider" "wip_provider" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.wip.workload_identity_pool_id
+  workload_identity_pool_provider_id = "${var.project_base_name}-wip-provider"
+  display_name                       = "${google_iam_workload_identity_pool.wip.display_name}-PROVIDER"
+  description                        = "GitHub Actions identity pool provider"
+  attribute_condition = <<EOT
+    attribute.repository == "gabichulas/f1-dataops" &&
+    assertion.ref_type == "branch"
+EOT
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.actor"      = "assertion.actor"
+    "attribute.aud"        = "assertion.aud"
+    "attribute.repository" = "assertion.repository"
+  }
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}

@@ -13,3 +13,8 @@ variable "project_base_name" {
   type        = string
   default     = "f1-pipeline"
 }
+
+variable "extractor_image_tag" {
+  description = "The Docker image tag to deploy for the Cloud Run Job"
+  type        = string
+}

@@ -24,7 +24,7 @@ resource "google_cloud_run_v2_job" "cloud_run" {
       service_account = google_service_account.extractor_sa.email
 
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.f1_docker_repo.repository_id}/f1-extractor:v1"
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.f1_docker_repo.repository_id}/f1-extractor:${var.extractor_image_tag}"
 
         env {
           name  = "BUCKET_NAME"
