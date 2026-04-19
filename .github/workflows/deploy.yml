@@ -33,9 +33,9 @@ jobs:
           cache: 'pip'
       
       - run: pip install -r src/requirements.txt
-      - run: pip install -r terraform/functions/requirements.txt
+      - run: pip install -r terraform/functions/scheduler/requirements.txt
       - run: pip install pytest flake8
-      - run: flake8 src/ terraform/functions/ --max-line-length=120
+      - run: flake8 src/ terraform/functions/scheduler/ --max-line-length=120
 
   infra-checks:
     name: Terraform Checks
