@@ -11,6 +11,7 @@ QUEUE_NAME = os.environ.get("QUEUE_NAME")
 JOB_NAME = os.environ.get("JOB_NAME")
 SERVICE_ACCOUNT_EMAIL = os.environ.get("SERVICE_ACCOUNT_EMAIL")
 
+
 def schedule_f1_extractions(request):
     storage_client = storage.Client()
     tasks_client = tasks_v2.CloudTasksClient()
@@ -33,21 +34,22 @@ def schedule_f1_extractions(request):
             session_time = datetime.fromisoformat(time_str)
 
             if now <= session_time <= one_week_from_now:
-                
+
                 execution_time = session_time + timedelta(hours=2)
-                
+
                 enqueue_cloud_run_job(
-                    tasks_client, 
-                    calendar_data["year"], 
-                    round_num, 
-                    session["type"], 
-                    execution_time
+                    tasks_client,
+                    calendar_data["year"],
+                    round_num,
+                    session["type"],
+                    execution_time,
                 )
                 tasks_created += 1
 
     msg = f"Success! Enqueued {tasks_created} tasks for the upcoming week."
     print(msg)
     return msg, 200
+
 
 def enqueue_cloud_run_job(client, year, round_num, session_type, execution_time):
 
@@ -57,11 +59,7 @@ def enqueue_cloud_run_job(client, year, round_num, session_type, execution_time)
 
     payload = {
         "overrides": {
-            "containerOverrides": [
-                {
-                    "args": [str(year), str(round_num), session_type]
-                }
-            ]
+            "containerOverrides": [{"args": [str(year), str(round_num), session_type]}]
         }
     }
 
@@ -71,13 +69,9 @@ def enqueue_cloud_run_job(client, year, round_num, session_type, execution_time)
             "url": url,
             "headers": {"Content-type": "application/json"},
             "body": json.dumps(payload).encode(),
-            "oauth_token": {
-                "service_account_email": SERVICE_ACCOUNT_EMAIL
-            }
+            "oauth_token": {"service_account_email": SERVICE_ACCOUNT_EMAIL},
         },
-        "schedule_time": {
-            "seconds": int(execution_time.timestamp())
-        }
+        "schedule_time": {"seconds": int(execution_time.timestamp())},
     }
 
     client.create_task(request={"parent": parent, "task": task})
