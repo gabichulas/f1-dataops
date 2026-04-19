@@ -75,7 +75,7 @@ resource "google_iam_workload_identity_pool_provider" "wip_provider" {
   workload_identity_pool_provider_id = "${var.project_base_name}-wip-provider"
   display_name                       = "${google_iam_workload_identity_pool.wip.display_name}-PROVIDER"
   description                        = "GitHub Actions identity pool provider"
-  attribute_condition = <<EOT
+  attribute_condition                = <<EOT
     attribute.repository == "gabichulas/f1-dataops" &&
     assertion.ref_type == "branch"
 EOT
