@@ -135,5 +135,6 @@ jobs:
         working-directory: ${{ env.TF_WORKDIR }}
         run: terraform apply -auto-approve -input=false
         env:
+          TF_VAR_project_id: ${{ env.PROJECT_ID }}
           TF_VAR_extractor_image_tag: ${{ needs.setup.outputs.short_sha }}
   
