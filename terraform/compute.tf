@@ -68,3 +68,54 @@ resource "google_cloudfunctions2_function" "scheduler_function" {
     }
   }
 }
+
+resource "google_compute_instance" "obs_vm" {
+  name         = "${var.project_base_name}-obs-vm"
+  machine_type = "e2-medium"
+  zone         = "${var.region}-a"
+
+  tags = ["grafana-server"]
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      size  = 15
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y ca-certificates curl gnupg
+
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod a+r /etc/apt/keyrings/docker.gpg
+
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    mkdir -p /opt/observability
+    chmod 777 /opt/observability
+
+    mkdir -p /opt/observability/prometheus
+    mkdir -p /opt/observability/loki
+
+    EOF
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.vm_sa.email
+    scopes = ["cloud-platform"]
+  }
+}

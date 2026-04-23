@@ -13,6 +13,11 @@ resource "google_service_account" "function_sa" {
   display_name = "Service Account for F1 Scheduler Function"
 }
 
+resource "google_service_account" "vm_sa" {
+  account_id   = "f1-vm-sa"
+  display_name = "Service Account for F1 Observability VM"
+}
+
 resource "google_storage_bucket_iam_member" "bucket_writer" {
   bucket = google_storage_bucket.f1_data_lake.name
   role   = "roles/storage.objectCreator"
@@ -63,6 +68,17 @@ resource "google_project_iam_member" "build_storage_admin" {
   member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
+resource "google_storage_bucket_iam_member" "loki_storage_admin" {
+  bucket = google_storage_bucket.loki_logs_storage.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.vm_sa.email}"
+}
+
+resource "google_project_iam_member" "monitoring_viewer" {
+  project = var.project_id
+  role    = "roles/monitoring.viewer"
+  member  = "serviceAccount:${google_service_account.vm_sa.email}"
+}
 
 resource "google_iam_workload_identity_pool" "wip" {
   workload_identity_pool_id = "${var.project_base_name}-wip"
