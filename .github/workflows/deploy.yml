@@ -16,6 +16,8 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION }}
   TF_WORKDIR: ${{ vars.TF_WORKDIR }}
+  PUBLIC_IP: ${{ vars.PUBLIC_IP }}
+
 
 jobs:
   setup:
@@ -137,5 +139,5 @@ jobs:
         env:
           TF_VAR_project_id: ${{ env.PROJECT_ID }}
           TF_VAR_extractor_image_tag: ${{ needs.setup.outputs.short_sha }}
-          TF_VAR_public_ip: ${{ secrets.PUBLIC_IP }}
+          TF_VAR_public_ip: ${{ env.PUBLIC_IP }}
   
