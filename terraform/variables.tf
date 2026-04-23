@@ -3,6 +3,12 @@ variable "project_id" {
   type        = string
 }
 
+variable "public_ip" {
+  description = "Public IP of my local machine"
+  type        = string
+  sensitive   = true
+}
+
 variable "region" {
   type    = string
   default = "us-central1"
