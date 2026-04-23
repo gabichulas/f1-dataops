@@ -69,7 +69,7 @@ resource "google_project_iam_member" "build_storage_admin" {
 }
 
 resource "google_storage_bucket_iam_member" "loki_storage_admin" {
-  bucket = google_storage_bucket.loki_logs_storage.name
+  bucket = google_storage_bucket.loki_logs_bucket.name
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.vm_sa.email}"
 }
