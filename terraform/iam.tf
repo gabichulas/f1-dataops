@@ -80,6 +80,12 @@ resource "google_project_iam_member" "monitoring_viewer" {
   member  = "serviceAccount:${google_service_account.vm_sa.email}"
 }
 
+resource "google_storage_bucket_iam_member" "config_bucket_viewer" {
+  bucket = google_storage_bucket.configs_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.vm_sa.email}"
+}
+
 resource "google_iam_workload_identity_pool" "wip" {
   workload_identity_pool_id = "${var.project_base_name}-wip"
   display_name              = "GITHUB-ACTIONS-WIP"
