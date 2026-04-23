@@ -128,7 +128,7 @@ resource "google_compute_instance" "obs_vm" {
 
 resource "google_compute_firewall" "allow_grafana" {
   name    = "${var.project_base_name}-allow-grafana"
-  network = "default" 
+  network = "default"
 
   allow {
     protocol = "tcp"
@@ -137,5 +137,5 @@ resource "google_compute_firewall" "allow_grafana" {
 
   target_tags = ["grafana-server"]
 
-  source_ranges = ["${var.public_ip}/32"] 
+  source_ranges = ["${var.public_ip}/32"]
 }

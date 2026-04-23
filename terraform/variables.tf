@@ -5,8 +5,8 @@ variable "project_id" {
 
 variable "public_ip" {
   description = "Public IP of my local machine"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 variable "region" {
