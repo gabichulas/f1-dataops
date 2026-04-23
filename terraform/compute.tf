@@ -137,5 +137,5 @@ resource "google_compute_firewall" "allow_grafana" {
 
   target_tags = ["grafana-server"]
 
-  source_ranges = ["${var.public_ip}/32"]
+  source_ranges = ["${var.public_ip}/24"]
 }
