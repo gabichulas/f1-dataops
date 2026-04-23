@@ -24,6 +24,14 @@ resource "google_storage_bucket" "f1_metadata" {
   force_destroy               = true
 }
 
+resource "google_storage_bucket" "configs_bucket" {
+  name     = "${var.project_id}-${var.project_base_name}-configs"
+  location = var.region
+
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
 resource "google_storage_bucket" "loki_logs_bucket" {
   name     = "${var.project_id}-${var.project_base_name}-loki"
   location = var.region

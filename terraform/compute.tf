@@ -111,11 +111,31 @@ resource "google_compute_instance" "obs_vm" {
     mkdir -p /opt/observability/prometheus
     mkdir -p /opt/observability/loki
 
+    gsutil cp gs://f1-dataops-configs/prometheus.yaml /opt/observability/prometheus/prometheus.yaml
+    gsutil cp gs://f1-dataops-configs/local-config.yaml /opt/observability/loki/local-config.yaml
+    gsutil cp gs://f1-dataops-configs/docker-compose.yaml /opt/observability/docker-compose.yaml
+
+    cd /opt/observability
+    docker compose up -d
+
     EOF
 
   service_account {
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = google_service_account.vm_sa.email
     scopes = ["cloud-platform"]
   }
+}
+
+resource "google_compute_firewall" "allow_grafana" {
+  name    = "${var.project_base_name}-allow-grafana"
+  network = "default" 
+
+  allow {
+    protocol = "tcp"
+    ports    = ["3000"]
+  }
+
+  target_tags = ["grafana-server"]
+
+  source_ranges = ["${var.public_ip}/32"] 
 }

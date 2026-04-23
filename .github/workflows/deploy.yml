@@ -137,4 +137,5 @@ jobs:
         env:
           TF_VAR_project_id: ${{ env.PROJECT_ID }}
           TF_VAR_extractor_image_tag: ${{ needs.setup.outputs.short_sha }}
+          TF_VAR_public_ip: ${{ secrets.PUBLIC_IP }}
   
