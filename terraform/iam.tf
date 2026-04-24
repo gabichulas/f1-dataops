@@ -74,9 +74,9 @@ resource "google_storage_bucket_iam_member" "loki_storage_admin" {
   member = "serviceAccount:${google_service_account.vm_sa.email}"
 }
 
-resource "google_project_iam_member" "monitoring_viewer" {
+resource "google_project_iam_member" "monitoring_editor" {
   project = var.project_id
-  role    = "roles/monitoring.viewer"
+  role    = "roles/monitoring.editor"
   member  = "serviceAccount:${google_service_account.vm_sa.email}"
 }
 
