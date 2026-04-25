@@ -10,7 +10,7 @@ locals {
 
 resource "google_storage_bucket_object" "exporter_config" {
   name   = ".env"
-  bucket = google_storage_bucket.configs_bucket
+  bucket = google_storage_bucket.configs_bucket.name
 
   content = templatefile("${path.module}/templates/.env.tftpl", {
     project_id   = var.project_id
