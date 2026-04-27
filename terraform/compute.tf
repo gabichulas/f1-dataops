@@ -115,6 +115,7 @@ resource "google_compute_instance" "obs_vm" {
     gsutil cp gs://f1-dataops-f1-pipeline-configs/local-config.yaml /opt/observability/loki/local-config.yaml
     gsutil cp gs://f1-dataops-f1-pipeline-configs/docker-compose.yaml /opt/observability/docker-compose.yaml
     gsutil cp gs://f1-dataops-f1-pipeline-configs/.env /opt/observability/.env
+    gsutil cp gs://f1-dataops-f1-pipeline-configs/config.alloy /opt/observability/config.alloy
 
     cd /opt/observability
     docker compose up -d
