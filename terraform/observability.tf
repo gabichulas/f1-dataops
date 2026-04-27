@@ -17,3 +17,21 @@ resource "google_storage_bucket_object" "exporter_config" {
     metrics_list = join(",", local.exporter_metrics)
   })
 }
+
+resource "google_pubsub_topic" "pipeline_logs_topic" {
+  name = "${var.project_base_name}-logs-topic"
+}
+
+resource "google_pubsub_subscription" "pipeline_logs_sub" {
+  name  = "${var.project_base_name}-logs-sub"
+  topic = google_pubsub_topic.pipeline_logs_topic.name
+}
+
+resource "google_logging_project_sink" "loki_log_sink" {
+  name        = "f1-loki-sink"
+  destination = "pubsub.googleapis.com/projects/${var.project_id}/topics/${google_pubsub_topic.pipeline_logs_topic.name}"
+
+  filter                 = "resource.type=(\"cloud_run_job\" OR \"cloud_function\" OR \"cloud_run_revision\")"
+  unique_writer_identity = true
+}
+

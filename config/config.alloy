@@ -1,0 +1,18 @@
+loki.write "local_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+loki.source.gcplog "pipeline_logs" {
+  project_id             = "f1-dataops"
+  subscription           = "f1-pipeline-logs-sub"
+  use_incoming_timestamp = true
+  
+  forward_to = [loki.write.local_loki.receiver]
+  
+  labels = {
+    environment = "production",
+    source      = "gcp_pubsub",
+  }
+}

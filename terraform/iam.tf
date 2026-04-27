@@ -111,3 +111,17 @@ EOT
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 }
+
+resource "google_project_iam_binding" "sink_pubsub_publisher" {
+  project = var.project_id
+  role    = "roles/pubsub.publisher"
+  members = [
+    google_logging_project_sink.loki_log_sink.writer_identity
+  ]
+}
+
+resource "google_project_iam_member" "vm_pubsub_subscriber" {
+  project = var.project_id
+  role    = "roles/pubsub.subscriber"
+  member  = "serviceAccount:${data.google_compute_default_service_account.default_sa.email}"
+}
