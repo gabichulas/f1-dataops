@@ -5,14 +5,15 @@ loki.write "local_loki" {
 }
 
 loki.source.gcplog "pipeline_logs" {
-  project_id             = "f1-dataops"
-  subscription           = "f1-pipeline-logs-sub"
-  use_incoming_timestamp = true
+  pull {
+    project_id             = "f1-dataops"
+    subscription           = "f1-pipeline-logs-sub"
+    use_incoming_timestamp = true
+    labels = {
+        environment = "production",
+        source      = "gcp_pubsub",
+    }
+  }
   
   forward_to = [loki.write.local_loki.receiver]
-  
-  labels = {
-    environment = "production",
-    source      = "gcp_pubsub",
-  }
 }

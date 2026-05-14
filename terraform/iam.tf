@@ -38,6 +38,12 @@ resource "google_project_iam_member" "scheduler_invoker" {
   member  = "serviceAccount:${google_service_account.scheduler_sa.email}"
 }
 
+resource "google_project_iam_member" "scheduler_imperson" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.scheduler_sa.email}"
+}
+
 resource "google_storage_bucket_iam_member" "calendar_reader" {
   bucket = google_storage_bucket.f1_metadata.name
   role   = "roles/storage.objectViewer"
@@ -123,5 +129,5 @@ resource "google_project_iam_binding" "sink_pubsub_publisher" {
 resource "google_project_iam_member" "vm_pubsub_subscriber" {
   project = var.project_id
   role    = "roles/pubsub.subscriber"
-  member  = "serviceAccount:${data.google_compute_default_service_account.default_sa.email}"
+  member  = "serviceAccount:${google_service_account.vm_sa}"
 }
